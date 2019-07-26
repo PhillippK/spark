@@ -1017,6 +1017,10 @@ public class Spark {
         getInstance().secure(keystoreFile, keystorePassword, truststoreFile, truststorePassword);
     }
 
+    public static void http2() {
+        getInstance().http2();
+    }
+    
     /**
      * Set the connection to be secure, using the specified keystore and
      * truststore. This has to be called before any route mapping is done. You

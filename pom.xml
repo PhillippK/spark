@@ -7,7 +7,7 @@
         <version>7</version>
     </parent>
     <groupId>com.sparkjava</groupId>
-    <artifactId>spark-core</artifactId>
+    <artifactId>spark-core</artifactId> 
     <packaging>bundle</packaging>
     <version>2.9.2-SNAPSHOT</version>
     <name>Spark</name>
@@ -31,6 +31,8 @@
     <properties>
         <java.version>1.8</java.version>
         <jetty.version>9.4.18.v20190429</jetty.version>
+        <alpnApi.version>1.1.3.v20160715</alpnApi.version>
+        <alpnBoot.version>8.1.12.v20180117</alpnBoot.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <powermock.version>1.7.4</powermock.version>
         <mockito.version>1.10.19</mockito.version>
@@ -50,20 +52,38 @@
             <version>1.7.25</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- JETTY DEPENDENCIES -->
+        
+        <!-- NEW JETTY DEPENDENCIES -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
+            <artifactId>jetty-alpn-java-server</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
+            <artifactId>jetty-alpn-java-client</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-
+		<dependency>
+		    <groupId>org.eclipse.jetty.http2</groupId>
+		    <artifactId>http2-server</artifactId>
+		    <version>${jetty.version}</version>
+		</dependency>
+		<dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-openjdk8-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-openjdk8-client</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-server</artifactId>
@@ -72,6 +92,16 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
             <version>${jetty.version}</version>
         </dependency>
 
@@ -127,7 +157,13 @@
     </dependencies>
 
     <build>
-
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.1.Final</version>
+            </extension>
+        </extensions>
         <resources>
             <resource>
                 <filtering>false</filtering>

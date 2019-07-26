@@ -1,5 +1,13 @@
 package spark.embeddedserver.jetty;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.After;
@@ -9,14 +17,6 @@ import spark.ExceptionMapper;
 import spark.embeddedserver.EmbeddedServer;
 import spark.route.Routes;
 import spark.staticfiles.StaticFilesConfiguration;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class EmbeddedJettyFactoryTest {
 
@@ -35,7 +35,7 @@ public class EmbeddedJettyFactoryTest {
         final EmbeddedJettyFactory embeddedJettyFactory = new EmbeddedJettyFactory(jettyServerFactory);
         embeddedServer = embeddedJettyFactory.create(routes, staticFilesConfiguration, exceptionMapper, false);
 
-        embeddedServer.ignite("localhost", 6757, null, 100, 10, 10000);
+        embeddedServer.ignite("localhost", 6757, null, 100, 10, 10000, false);
 
         verify(jettyServerFactory, times(1)).create(100, 10, 10000);
         verifyNoMoreInteractions(jettyServerFactory);
@@ -55,7 +55,7 @@ public class EmbeddedJettyFactoryTest {
         final EmbeddedJettyFactory embeddedJettyFactory = new EmbeddedJettyFactory(jettyServerFactory).withThreadPool(threadPool);
         embeddedServer = embeddedJettyFactory.create(routes, staticFilesConfiguration, exceptionMapper, false);
 
-        embeddedServer.ignite("localhost", 6758, null, 0, 0, 0);
+        embeddedServer.ignite("localhost", 6758, null, 0, 0, 0, false);
 
         verify(jettyServerFactory, times(1)).create(threadPool);
         verifyNoMoreInteractions(jettyServerFactory);
@@ -73,7 +73,7 @@ public class EmbeddedJettyFactoryTest {
         final EmbeddedJettyFactory embeddedJettyFactory = new EmbeddedJettyFactory(jettyServerFactory).withThreadPool(null);
         embeddedServer = embeddedJettyFactory.create(routes, staticFilesConfiguration, exceptionMapper, false);
 
-        embeddedServer.ignite("localhost", 6759, null, 100, 10, 10000);
+        embeddedServer.ignite("localhost", 6759, null, 100, 10, 10000, false);
 
         verify(jettyServerFactory, times(1)).create(100, 10, 10000);
         verifyNoMoreInteractions(jettyServerFactory);
@@ -90,7 +90,7 @@ public class EmbeddedJettyFactoryTest {
 
         final EmbeddedJettyFactory embeddedJettyFactory = new EmbeddedJettyFactory(jettyServerFactory).withHttpOnly(false);
         embeddedServer = embeddedJettyFactory.create(routes, staticFilesConfiguration, false);
-        embeddedServer.ignite("localhost", 6759, null, 100, 10, 10000);
+        embeddedServer.ignite("localhost", 6759, null, 100, 10, 10000, false);
 
         assertFalse(((JettyHandler) server.getHandler()).getSessionCookieConfig().isHttpOnly());
     }

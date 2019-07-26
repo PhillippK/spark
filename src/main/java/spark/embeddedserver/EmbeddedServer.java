@@ -37,6 +37,7 @@ public interface EmbeddedServer {
      * @param maxThreads              - max nbr of threads.
      * @param minThreads              - min nbr of threads.
      * @param threadIdleTimeoutMillis - idle timeout (ms).
+     * @param http2Enabled - enable http2.0.
      * @return The port number the server was launched on.
      */
     int ignite(String host,
@@ -44,7 +45,8 @@ public interface EmbeddedServer {
                SslStores sslStores,
                int maxThreads,
                int minThreads,
-               int threadIdleTimeoutMillis) throws Exception;
+               int threadIdleTimeoutMillis,
+               boolean http2Enabled) throws Exception;
 
     /**
      * Configures the web sockets for the embedded server.

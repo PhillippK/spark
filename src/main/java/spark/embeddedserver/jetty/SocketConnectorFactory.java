@@ -18,11 +18,16 @@ package spark.embeddedserver.jetty;
 
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.http2.HTTP2Cipher;
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import spark.ssl.SslStores;
@@ -99,6 +104,56 @@ public class SocketConnectorFactory {
         return connector;
     }
 
+    public static ServerConnector createHttp2SocketConnector(Server server,
+            String host,
+            int port,
+            SslStores sslStores) throws Exception {
+        Assert.notNull(server, "'server' must not be null");
+        Assert.notNull(host, "'host' must not be null");
+        Assert.notNull(sslStores, "'sslStores' must not be null");
+
+        SslContextFactory sslContextFactory = new SslContextFactory(sslStores.keystoreFile());
+
+        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
+        sslContextFactory.setUseCipherSuitesOrder(true);
+
+        if (sslStores.keystorePassword() != null) {
+            sslContextFactory.setKeyStorePassword(sslStores.keystorePassword());
+        }
+
+        if (sslStores.trustStoreFile() != null) {
+            sslContextFactory.setTrustStorePath(sslStores.trustStoreFile());
+        }
+
+        if (sslStores.trustStorePassword() != null) {
+            sslContextFactory.setTrustStorePassword(sslStores.trustStorePassword());
+        }
+
+        HttpConfiguration config = getHttpConfiguration(port);
+        HttpConnectionFactory http1 = new HttpConnectionFactory(config);
+        HTTP2ServerConnectionFactory http2 = new HTTP2ServerConnectionFactory(config);
+ 
+        
+        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+        alpn.setDefaultProtocol(http1.getProtocol());
+        sslContextFactory.setProtocol("TLSv1.2"); // SEB
+        SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
+        ServerConnector connector = new ServerConnector(server, ssl, alpn, http2, http1);
+
+        initializeConnector(connector, host, port);
+        return connector;
+     }
+        
+     private static HttpConfiguration getHttpConfiguration(int port) {
+        HttpConfiguration config = new HttpConfiguration();
+        config.setSecureScheme("https");
+        config.setSecurePort(port);
+        config.addCustomizer(new SecureRequestCustomizer());
+        return config;
+     }
+
+
+    
     private static void initializeConnector(ServerConnector connector, String host, int port) {
         // Set some timeout options to make debugging easier.
         connector.setIdleTimeout(TimeUnit.HOURS.toMillis(1));

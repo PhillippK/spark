@@ -16,6 +16,9 @@
  */
 package spark;
 
+import static java.util.Objects.requireNonNull;
+import static spark.globalstate.ServletFlag.isRunningFromServlet;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -39,9 +42,6 @@ import spark.route.ServletRoutes;
 import spark.ssl.SslStores;
 import spark.staticfiles.MimeType;
 import spark.staticfiles.StaticFilesConfiguration;
-
-import static java.util.Objects.requireNonNull;
-import static spark.globalstate.ServletFlag.isRunningFromServlet;
 
 /**
  * Represents a Spark server "session".
@@ -71,7 +71,8 @@ public final class Service extends Routable {
     protected int minThreads = -1;
     protected int threadIdleTimeoutMillis = -1;
     protected Optional<Integer> webSocketIdleTimeoutMillis = Optional.empty();
-
+    protected boolean http2Enabled = false;
+    
     protected EmbeddedServer server;
     protected Deque<String> pathDeque = new ArrayDeque<>();
     protected Routes routes;
@@ -144,6 +145,17 @@ public final class Service extends Routable {
             throwBeforeRouteMappingException();
         }
         this.port = port;
+        return this;
+    }
+    
+    /**
+     * Enables HTTP2
+     */
+    public synchronized Service http2() {
+        if (initialized) {
+            throwBeforeRouteMappingException();
+        }
+        this.http2Enabled = true;
         return this;
     }
 
@@ -577,7 +589,8 @@ public final class Service extends Routable {
                             sslStores,
                             maxThreads,
                             minThreads,
-                            threadIdleTimeoutMillis);
+                            threadIdleTimeoutMillis,
+                            http2Enabled);
                   } catch (Exception e) {
                     initExceptionHandler.accept(e);
                   }

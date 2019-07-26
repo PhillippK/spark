@@ -82,7 +82,8 @@ public class EmbeddedJettyServer implements EmbeddedServer {
                       SslStores sslStores,
                       int maxThreads,
                       int minThreads,
-                      int threadIdleTimeoutMillis) throws Exception {
+                      int threadIdleTimeoutMillis,
+                      boolean http2Enabled) throws Exception {
 
         boolean hasCustomizedConnectors = false;
 
@@ -107,7 +108,11 @@ public class EmbeddedJettyServer implements EmbeddedServer {
         if (sslStores == null) {
             connector = SocketConnectorFactory.createSocketConnector(server, host, port);
         } else {
-            connector = SocketConnectorFactory.createSecureSocketConnector(server, host, port, sslStores);
+            if (http2Enabled) {
+                connector = SocketConnectorFactory.createHttp2SocketConnector(server, host, port, sslStores);
+            } else {
+                connector = SocketConnectorFactory.createSecureSocketConnector(server, host, port, sslStores);
+            }
         }
 
         Connector previousConnectors[] = server.getConnectors();
